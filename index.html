@@ -1,0 +1,200 @@
+<!-- 文件名: index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>直接搜-夸克网盘资源搜索-电影|电视剧|资料免费下载</title>
+    <meta name="description" content="直接搜是一个专业的夸克网盘资源搜索引擎，致力于帮助用户快速、便捷地找到并免费下载最新的电影、热播电视剧、高清纪录片、珍贵学习资料以及电子书等海量资源。">
+    <meta name="keywords" content="夸克网盘,夸克网盘搜索,夸克资源,电影下载,电视剧下载,夸克云盘,资源搜索,免费资源,夸克分享">
+    <meta name="robots" content="index, follow">
+    <!-- 这里需要手动替换你的域名，或者通过 JS 动态获取 -->
+    <meta property="og:title" content="直接搜 - 全网资源一键直达">
+    <meta property="og:type" content="website">
+    
+    <!-- 样式保持不变，为节省篇幅省略，请把原代码中的 <style>...</style> 完整复制过来 -->
+    <style>
+        :root { --primary: #4e6ef2; --primary-hover: #4662d9; --bg-color: #f8f9fa; --card-bg: #ffffff; --text-main: #202124; --text-sub: #5f6368; --border-color: #dadce0; --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15); --shadow-hover: 0 4px 8px 3px rgba(60,64,67,0.15); }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 20px 0; text-align: center; box-shadow: 0 1px 6px rgba(32,33,36,0.1); }
+        .logo { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: inline-block; letter-spacing: -0.5px; }
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; flex: 1; }
+        .search-wrapper { position: relative; margin: 0 auto 30px auto; max-width: 600px; }
+        .search-box { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px; padding: 5px 5px 5px 20px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 1px 6px rgba(32,33,36,0.1); }
+        .search-box:hover, .search-box:focus-within { box-shadow: 0 2px 12px rgba(32,33,36,0.2); border-color: transparent; }
+        input { flex: 1; border: none; font-size: 16px; outline: none; color: var(--text-main); padding: 10px 0; background: transparent; }
+        button.search-btn { background: var(--primary); color: white; border: none; border-radius: 20px; padding: 10px 24px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-left: 10px; }
+        button.search-btn:hover { background: var(--primary-hover); }
+        .tags-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 13px; }
+        .tag-ad { background-color: #fff0e0; color: #d97706; padding: 6px 12px; border-radius: 16px; text-decoration: none; transition: opacity 0.2s; border: 1px solid #ffedd5; }
+        .tag-ad:hover { opacity: 0.8; }
+        .result-list { display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); text-decoration: none; color: inherit; display: flex; align-items: start; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: transparent; }
+        .card-icon { font-size: 24px; margin-right: 15px; flex-shrink: 0; background: #f1f3f4; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .card-content { flex: 1; min-width: 0; }
+        .card-title { font-size: 16px; font-weight: 600; color: #1a0dab; margin-bottom: 6px; line-height: 1.4; word-wrap: break-word; }
+        .card-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-sub); }
+        .drive-badge { padding: 2px 6px; border-radius: 4px; font-weight: 500; background: #e8f0fe; color: #1967d2; }
+        .drive-badge.quark { background: #e6f4ea; color: #137333; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 40px; margin-bottom: 20px; }
+        .page-btn { background: white; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .page-btn:hover:not(:disabled) { background: #f1f3f4; color: var(--primary); }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #loading { text-align: center; margin: 40px 0; color: var(--text-sub); display: none; }
+        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid rgba(78,110,242,0.3); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error { background: #fce8e6; color: #c5221f; padding: 12px; border-radius: 8px; text-align: center; margin: 10px 0; font-size: 14px; }
+        .empty-state { text-align: center; color: var(--text-sub); padding: 40px 0; }
+        footer { background: var(--card-bg); border-top: 1px solid var(--border-color); padding: 20px; text-align: center; font-size: 12px; color: #999; margin-top: auto; }
+        @media (max-width: 600px) { .container { padding: 15px; } .card { padding: 15px; } .logo { font-size: 24px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🔍 直接搜</div>
+        <div style="font-size: 14px; color: var(--text-sub);">夸克网盘资源 电影|电视剧|资料 免费下载</div>
+    </div>
+    <div class="container">
+        <!-- 搜索栏等 HTML 结构保持不变，直接复制 -->
+        <div class="search-wrapper">
+            <div class="search-box">
+                <span style="font-size: 18px; color: #9aa0a6;">🔎</span>
+                <input type="text" id="kw" placeholder="输入关键词 (如: 庆余年, 考研资料)..." onkeydown="if(event.keyCode==13) doSearch(1)">
+                <button class="search-btn" onclick="doSearch(1)">搜索</button>
+            </div>
+        </div>
+        <div class="tags-container" id="adsContainer"></div>
+        <div id="loading"><div class="spinner"></div><p>正在全网搜索中...</p></div>
+        <div id="error" class="error" style="display:none;"></div>
+        <div id="results" class="result-list"></div>
+        <div id="pagination" class="pagination" style="display: none;">
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)">上一页</button>
+            <span id="pageInfo" style="color: var(--text-sub); font-size: 14px;">1 / 1</span>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">下一页</button>
+        </div>
+    </div>
+    <footer>
+        <p>免责声明：本站资源均来源于网络，仅供学习交流，请于下载后24小时内删除。</p>
+        <p>Powered by Cloudflare Workers & D1 | 2024 © 直接搜</p>
+    </footer>
+    <script>
+        // 🔴 重点：在这里配置前端广告，不需要通过后端注入了
+        const ADS = [
+          {
+            'text': "📱 流量卡办理",
+            'url': "https://h5.lot-ml.com/ProductEn/Index/70fedaf6239f2173"
+          },
+          {
+            'text': "✈️ 机场推荐",
+            'url': "https://naiixi.com/signupbyemail.aspx?MemberCode=b2f3ab200e774fd5b921e274669c900420251030144409"
+          }
+        ];
+        
+        // 剩余的 JS 逻辑保持不变，直接复制
+        const adsContainer = document.getElementById('adsContainer');
+        if(ADS && ADS.length > 0) {
+            ADS.forEach(ad => {
+                const a = document.createElement('a');
+                a.href = ad.url;
+                a.className = 'tag-ad';
+                a.target = '_blank';
+                a.innerHTML = ad.text;
+                adsContainer.appendChild(a);
+            });
+        }
+        let currentPage = 1;
+        let currentQuery = '';
+        let totalPages = 1;
+        async function doSearch(page) {
+            const kw = document.getElementById('kw').value.trim();
+            if (!kw) return;
+            currentQuery = kw;
+            currentPage = page;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('pagination').style.display = 'none';
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('q', kw);
+            newUrl.searchParams.set('page', page);
+            window.history.pushState({}, '', newUrl);
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(kw)}&page=${page}`);
+                const json = await res.json();
+                document.getElementById('loading').style.display = 'none';
+                if (!json.success) {
+                    const errDiv = document.getElementById('error');
+                    errDiv.innerText = json.error || '搜索失败';
+                    errDiv.style.display = 'block';
+                    return;
+                }
+                if (json.data.length === 0) {
+                    document.getElementById('results').innerHTML = '<div class="empty-state">☁️ 暂时没有找到相关资源<br>请尝试更换更短的关键词</div>';
+                    return;
+                }
+                renderResults(json.data);
+                updatePagination(json.pagination);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {
+                document.getElementById('loading').style.display = 'none';
+                const errDiv = document.getElementById('error');
+                errDiv.innerText = '网络请求出错，请稍后重试';
+                errDiv.style.display = 'block';
+            }
+        }
+        // ... (剩下的 renderResults, updatePagination 等函数代码完全一样，复制即可) ...
+        function renderResults(data) {
+            const container = document.getElementById('results');
+            data.forEach(item => {
+                const isAli = item.drive_type === 1;
+                const driveName = isAli ? '阿里云盘' : '夸克网盘';
+                const badgeClass = isAli ? 'drive-badge' : 'drive-badge quark';
+                const iconChar = isAli ? '⚡' : '☁️';
+                const html = `
+                    <a href="${item.short_url}" target="_blank" class="card">
+                        <div class="card-icon">${iconChar}</div>
+                        <div class="card-content">
+                            <div class="card-title">${escapeHtml(item.title)}</div>
+                            <div class="card-meta">
+                                <span class="${badgeClass}">${driveName}</span>
+                                <span>点击查看详情</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                container.innerHTML += html;
+            });
+        }
+        function updatePagination(pagination) {
+            totalPages = pagination.totalPages;
+            document.getElementById('pageInfo').innerText = `${pagination.page} / ${pagination.totalPages}`;
+            document.getElementById('prevBtn').disabled = !pagination.hasPrev;
+            document.getElementById('nextBtn').disabled = !pagination.hasNext;
+            if (pagination.totalPages > 1) {
+                document.getElementById('pagination').style.display = 'flex';
+            }
+        }
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                doSearch(newPage);
+            }
+        }
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get('q');
+            if(q) {
+                document.getElementById('kw').value = q;
+                const p = parseInt(params.get('page')) || 1;
+                doSearch(p);
+            }
+        }
+    </script>
+</body>
+</html>
