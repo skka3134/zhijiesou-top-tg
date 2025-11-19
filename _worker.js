@@ -1,6 +1,6 @@
 const TELEGRAM_BOT_TOKEN = '8437310331:AAGJLFRLtFSLBwMfJ6Pb2yDQy-Xa5uE99HU';
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-const WEBSITE_URL_CONST = 'https://zhijiesou-top-tg.skka3134.workers.dev';
+const WEBSITE_URL_CONST = 'https://zhijiesou-top-tg.skka3134.pages.dev';
 const ADS_CONFIG = [
   {
     'text': "📱 流量卡办理",
