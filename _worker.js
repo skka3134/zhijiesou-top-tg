@@ -1,10 +1,6 @@
-// 文件路径: functions/_worker.js
-
 const TELEGRAM_BOT_TOKEN = '8437310331:AAGJLFRLtFSLBwMfJ6Pb2yDQy-Xa5uE99HU';
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 const WEBSITE_URL_CONST = 'https://zhijiesou-top-tg.skka3134.workers.dev';
-
-// 🔴 虽然 HTML 里也有一份，但为了 Telegram Bot 的按钮，这里也需要留一份
 const ADS_CONFIG = [
   {
     'text': "📱 流量卡办理",
@@ -15,20 +11,14 @@ const ADS_CONFIG = [
     'url': "https://naiixi.com/signupbyemail.aspx?MemberCode=b2f3ab200e774fd5b921e274669c900420251030144409"
   }
 ];
-
 export default {
   async fetch(request, env, context) {
     const url = new URL(request.url);
     const path = url.pathname;
     const currentOrigin = WEBSITE_URL_CONST || url.origin;
-
-    // 1. 首页及静态资源：交给 Cloudflare Pages 系统自动处理
-    // 当请求 / 或 index.html 或 /favicon.ico 时，env.ASSETS.fetch 会去读取你上传的 index.html
     if (path === '/' || path === '/index.html' || path.startsWith('/assets/')) {
       return env.ASSETS.fetch(request);
     }
-    
-    // 2. API 和 Bot 逻辑（拦截）
     if (path === '/bot/set-webhook') {
       return await registerWebhook(currentOrigin);
     }
@@ -38,31 +28,17 @@ export default {
     if (request.method === 'POST' && path === '/bot/webhook') {
       return handleTelegramUpdate(request, env, currentOrigin);
     }
-
-    // 3. 短链接跳转逻辑 (排除点号文件，如 .txt, .png)
-    // 如果不是 API 且不包含点号，假设是短链 ID
     if (path.length > 1 && !path.includes('.')) {
-        // 先尝试按短链处理
         const redirectResp = await handleRedirectRequest(request, env, context);
-        // 如果短链处理返回了 302 跳转，就返回跳转
         if (redirectResp.status === 302) {
             return redirectResp;
         }
-        // 如果数据库里没找到这个短链 (404)，则回退给 Pages 尝试寻找是否有同名静态文件
-        // 比如你有一个文件叫 /about，不是短链，那应该显示页面
         return env.ASSETS.fetch(request); 
     }
-
-    // 4. 其他情况（如 404），交给 Pages 处理（显示默认 404 页面）
     return env.ASSETS.fetch(request);
   },
 };
-
-// ================= 以下逻辑函数保持原样，直接复制即可 =================
-// (此处为了节省篇幅，下面的 searchDatabase, handleApiSearch, registerWebhook 等
-//  所有辅助函数与你之前提供的代码完全一致，不需要修改，直接粘贴在 export default 后面)
-
-async function handleStaticAssets(request, env, path) { /* ...保留代码... */ } // 其实这个函数在 env.ASSETS 模式下用处不大了，但留着兼容 R2 也行
+async function handleStaticAssets(request, env, path) { } 
 async function searchDatabase(query, page, env, originUrl) {
     if (!env.DB) return { success: false, error: "Database binding not found" };
     const pageSize = 10;
@@ -283,7 +259,6 @@ async function handleRedirectRequest(request, env, context) {
         const selectStmt = env.DB.prepare(selectSql).bind(short_url);
         const result = await selectStmt.first();
         if (!result) {
-            // 返回 404 表示不是短链，交给调用者决定（调用者会转去 ASSETS）
             return new Response("Not found", { status: 404 });
         }
         let targetUrl = result.long_url2;
